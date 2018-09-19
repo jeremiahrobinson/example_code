@@ -1,0 +1,51 @@
+---
+- hosts: all 
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: make directory
+    file:
+        path: "<PATH>"
+        state: directory
+        owner: <OWNER>
+        group: <OWNER>
+    register: pma_makedir
+  - name: download latest file
+    get_url:
+        url:  https://files.phpmyadmin.net/phpMyAdmin/4.8.1/phpMyAdmin-4.8.1-english.tar.gz 
+        dest: /<DEST>
+        owner: ansible
+        group: ansible
+    register: pma_downloadzip
+    ## name: extract phpmyadmin latest file
+  - raw: tar -xz --uname <UNAME> --gname <GNAME> -f /<DIR>/phpMyAdmin-4.8.1-english.tar.gz -C /<DIR>
+    ## name: delete old directory
+  - raw: rm /<SRC> /<DEST>
+    ## name: delete current directory
+  - raw: rm /<SRC> /<DEST>
+    ## name: Move new download directory
+  - raw: mv /<SRC> /<DEST>
+  - name: copy DES blowfish secret
+    copy: 
+        src: /<SRC> /<DEST>/config.inc.php
+        dest: /<SRC> /<DEST>/config.inc.php
+        force: yes
+        remote_src: no
+        owner: vmxuser
+        group: vmxuser
+   #when: pma_unarchivezip|success
+    register: pma_delsecret
+  - name: creates tmp directory
+    file:
+      path: /<SRC> /<DEST>/tmp
+      state: directory
+      mode: 0755
+      owner: vmxuser
+      group: vmxuser
+  - name: delete download zip file
+    file:
+        path: /<SRC> /<DEST>/phpMyAdmin-4.8.1-english.tar.gz
+        state: absent
+    register: pma_deletedownload
