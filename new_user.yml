@@ -1,0 +1,22 @@
+---
+- hosts: all 
+  remote_user: ansible
+  become: true
+  become_method: sudo
+  tasks:
+      - name: add USERNAME user
+        user: name=USERNAME comment="NAME" shell=/bin/tcsh password='HASHED_PW' state=present groups=wheel append=yes
+      - name: pwd_mkdb
+        command: /usr/sbin/pwd_mkdb /etc/master.passwd
+      - name: pwd_mkdb -p
+        command: /usr/sbin/pwd_mkdb -p /etc/master.passwd 
+      - name: remove authorized_keys
+        file: 
+           path=/home/USER/.ssh/authorized_keys 
+           state=absent 
+      - name: copy .ssh authorized key
+        authorized_key: 
+           user=USERNAME
+           key="{{ lookup('file', '/DIR/id_rsa.pub') }}"
+      - name: copy .tcshrc
+        copy: src=/DIR/.tcshrc dest=/home/jrob/.tcshrc owner=jrob group=jrob mode=0600
