@@ -1,0 +1,19 @@
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: copy crt
+    copy: src=/<SRC_DIR>/host.crt
+          dest=/<DES_DIR>/host.crt owner=root group=wheel mode=0600 backup=yes
+  - name: copy bundle
+    copy: src=/<SRC_DIR>/ca-bundle.crt
+          dest=/<SRC_DIR>/ca-bundle.crt owner=root group=wheel mode=0600 backup=yes
+  - name: copy key
+    copy: src=/<SRC_DIR>/host.key
+          dest=/<SRC_DIR>/host.key owner=root group=wheel mode=0600 backup=yes
+  - name: copy csr
+    copy: src=/<SRC_DIR>//host.csr
+          dest=/<SRC_DIR>//host.csr owner=root group=wheel mode=0600 backup=yes
+    notify: restart apache
+  handlers:
+    - include: handlers/handlers.yml   
